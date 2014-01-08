@@ -109,15 +109,15 @@ class Chef
       def validate_source(source)
         raise ArgumentError, "#{resource_name} has an empty source" if source.empty?
         source.each do |src|
-          unless absolute_uri?(src)
+          unless absolute_uri_or_lazy?(src)
             raise Exceptions::InvalidRemoteFileURI,
               "#{src.inspect} is not a valid `source` parameter for #{resource_name}. `source` must be an absolute URI or an array of URIs."
           end
         end
       end
 
-      def absolute_uri?(source)
-        source.kind_of?(String) and URI.parse(source).absolute?
+      def absolute_uri_or_lazy?(source)
+        source.kind_of?(DelayedEvaluator) or source.kind_of?(String) and URI.parse(source).absolute?
       rescue URI::InvalidURIError
         false
       end
